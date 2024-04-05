@@ -14,7 +14,7 @@ class SnakeGameAI:
 
         self.grid = numpy.zeros((self.gridSize, self.gridSize), dtype=int)
         self.snake = Snake(self.gridSize//2, self.gridSize//2, min( 3, self.gridSize-1), 1, 0)
-        self.placeApple()
+        self._placeApple()
 
     def input(self, turn):
         self.snake.changeDirection(turn)

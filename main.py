@@ -1,11 +1,14 @@
 from game import SnakeGameAI
 import pygame
+from snake import Snake
 
 screenSize = 500
 screen = pygame.display.set_mode([screenSize, screenSize])
 
 clock = pygame.time.Clock()
 game = SnakeGameAI(10, 4)
+
+
 
 running = True
 while running:
@@ -22,6 +25,7 @@ while running:
                 turn = [0, 1, 0]
     
     reward, game_over, score = game.input(turn)
+    get_state(game)
 
     game.draw(screen, screenSize)
     pygame.display.update()
