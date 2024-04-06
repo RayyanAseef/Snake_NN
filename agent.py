@@ -4,6 +4,7 @@ from game import SnakeGameAI
 from snake import Snake
 from snakeBody import Snake_Body 
 from collections import deque
+from model import Linear_QNet, QTrainer
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
@@ -14,9 +15,10 @@ class Agent:
     def __init__(self):
         self_n_games = 0
         self.eplison = 0 # randomness
-        self.gamma = 0 # discount rate
+        self.gamma = 0.9 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft()
-        # TODO: model , trainer
+        self.model = Linear_QNet(11, 256, 3)
+        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
     
     def _test_direction(self, game, direction_input):
         head = game.snake.body[0]
@@ -48,23 +50,40 @@ class Agent:
         foodUp = 1 if head.y < apple[1] else 0
         foodDown = 0 if head.y < apple[1] else 1
 
-        print(
+        return [
             dangers[0], dangers[1], dangers[2],
             dirLeft, dirRight, dirUp, dirDown,
             foodLeft, foodRight, foodUp, foodDown
-        )
+        ]
 
     def remember(self, state, action, reward, next_state, done):
-        pass
+        self.memory.append(state, action, reward, next_state, done) # popleft if max memroy is reached
 
-    def train_short_memory(self, state, action, reward, next_state, done)   :
-        pass
+    def train_short_memory(self, state, action, reward, next_state, done):
+        self.trainer.train_step((state, action, reward, next_state, done))
 
     def train_long_memory(self):
-        pass
+        if len(self.memory) > BATCH_SIZE:
+            mini_sample = random.sample(self.memory, BATCH_SIZE) # list of tuples
+        else:
+            mini_sample = self.memory
+        
+        states, actions, rewards, next_states, dones = zip(*mini_sample)
+        self.train_short_memory(states, actions, rewards, next_states, dones)
 
     def get_action(self, state):
-        pass
+        # random moves: tradeoff exploration / exploitation
+        self.eplison = 80 - self.n_games
+        final_move = [0, 0, 0]
+
+        if random.randint(0, 200) < self.eplison:
+            move = random.randint(0, 2)
+            final_move[move] = 1
+        else:
+            state0 = torch.tensor(state, torch.float)
+            prediction = self.model(state0)
+            move = torch.argmax(prediction).item()
+            final_move[move] = 1
 
 def train():
     plot_scores = []
@@ -100,7 +119,7 @@ def train():
 
             if score > record:
                 record = score
-                # agent.model.save()
+                agent.model.save()
 
             print('Game', agent.n_games, 'Score', score, 'Record:', record)
 
