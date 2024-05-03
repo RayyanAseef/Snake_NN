@@ -34,4 +34,20 @@ class QTrainer:
         self.criterion = nn.MSELoss()
 
     def train_step(self, state, action, reward, next_state, done):
-        pass
+        state = torch.tensor(state, dtype=torch.float)
+        action = torch.tensor(action, dtype=torch.float)
+        reward = torch.tensor(reward, dtype=torch.float)
+        next_state = torch.tensor(next_state, dtype=torch.float)
+
+        if len(state.shape) == 1:
+            state = torch.unsqueeze(state, 0)
+            action = torch.unsqueeze(action, 0)
+            reward = torch.unsqueeze(reward, 0)
+            next_state = torch.unsqueeze(next_state, 0)
+            done = (done, )
+
+        # 1: Predicted Q values with the current state
+        pred = self.model(state)
+
+        # 2: r + y * max(next_predicted Q values)
+        
