@@ -1,6 +1,7 @@
 from game import SnakeGameAI
 import pygame
 from snake import Snake
+import copy
 
 screenSize = 500
 screen = pygame.display.set_mode([screenSize, screenSize])
@@ -9,7 +10,7 @@ clock = pygame.time.Clock()
 game = SnakeGameAI(10, 4)
 
 def test_direction(game, direction_input):
-    head = game.snake.body[0]
+    head = copy.deepcopy(game.snake.body[0])
     temp_snake = Snake(startX=head.x, startY=head.y, bodySize=1, xDir=game.snake.xDir, yDir=game.snake.yDir)
     temp_snake.changeDirection(direction_input)
     _, game_over = temp_snake.move(game.gridSize, game.applePos)

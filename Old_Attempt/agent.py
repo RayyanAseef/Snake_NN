@@ -4,7 +4,7 @@ from game import SnakeGameAI
 from snake import Snake
 from snakeBody import Snake_Body 
 from collections import deque
-from model import Linear_QNet, QTrainer
+from Old_Attempt.model import Linear_QNet, QTrainer
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000

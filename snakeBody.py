@@ -10,6 +10,8 @@ class Snake_Body:
 
         if self.behind != None:
            return self.behind.moveBody(self.x - xDir, self.y + yDir)
+        else:
+            return [self.x - xDir, self.y + yDir]
 
     def moveBody(self, x, y):
         if self.behind != None:
