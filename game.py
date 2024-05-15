@@ -3,35 +3,34 @@ import pygame, numpy, random
 
 class SnakeGameAI:
 
-    def __init__(self, gridSize = 10, gridLineWidth = 4):
+    def __init__(self, gridSize = 10, gridLineWidth = 4, snake_size=3):
         self.gridSize = gridSize
         self.gridLineWidth = gridLineWidth
 
-        self.reset()
+        self.snake_start_size = snake_size
+        self.reset(self.snake_start_size)
 
-    def reset(self):
+    def reset(self, snake_size):
         self.score = 0
 
         self.grid = numpy.zeros((self.gridSize, self.gridSize), dtype=int)
-        self.snake = Snake(self.gridSize//2, self.gridSize//2, min( 3, self.gridSize-1), 1, 0)
+        self.snake = Snake(self.gridSize//2, self.gridSize//2, min(snake_size, self.gridSize-1), 1, 0)
         self._placeApple()
 
     def input(self, turn):
         self.snake.changeDirection(turn)
-        ateApple, isDead = self.snake.move(self.gridSize, self.applePos)
+        deadState = self.snake.move(self.gridSize, self.applePos)
 
-        reward = 10 if ateApple else -10 if isDead else 0
-        game_over = isDead
-        self.score += 1 if ateApple else 0
-
-        return reward, game_over, self.score
-
-    def draw(self, surface, surfaceSize):
-        surface.fill((0, 0, 0))
+        self.score = self.snake.bodySize - self.snake_start_size
 
         if not numpy.any(self.grid == -1):
             self.grid = self._placeApple()
         self.grid = self._placeSnake()
+
+        return self.score, deadState
+
+    def draw(self, surface, surfaceSize):
+        surface.fill((0, 0, 0))
 
         gap = surfaceSize / self.gridSize
         halfLineWidth = self.gridLineWidth / 2

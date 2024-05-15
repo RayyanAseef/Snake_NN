@@ -36,12 +36,12 @@ class Snake:
         self.lastPostion = self.body[0].moveHead(self.xDir, self.yDir)
 
         ateApple = self.body[0].x == applePos[0] and self.body[0].y == applePos[1]
-        isDead = self.isDead(gridSize)
+        deadState = self.isDead(gridSize, body=self.body)
 
         if ateApple: 
             self._grow()
         
-        return ateApple, isDead
+        return deadState
 
     def _grow(self):
         new_part = Snake_Body( self.lastPostion[0],  self.lastPostion[1], None)
@@ -49,14 +49,15 @@ class Snake:
         self.body.append(new_part)
         self.bodySize += 1
     
-    def isDead(self, gridSize, pt = None):
+    @staticmethod
+    def isDead(gridSize, *, body, pt=None):
         if pt is None:
-            pt = self.body[0]
+            pt = [body[0].x, body[0].y]
 
-        if pt.x > gridSize-1 or pt.y > gridSize-1 or pt.x < 0 or pt.y < 0:
-            return True
+        if pt[0] > gridSize-1 or pt[1] > gridSize-1 or pt[0] < 0 or pt[1] < 0:
+            return 1
         
-        if [pt.x, pt.y] in [[self.body[i].x, self.body[i].y] for i in range(1, len(self.body))]:
-            return True
+        if pt in [[body[i].x, body[i].y] for i in range(1, len(body))]:
+            return 1
         
-        return False
+        return 0
