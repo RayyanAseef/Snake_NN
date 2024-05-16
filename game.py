@@ -1,20 +1,20 @@
-from snake import Snake
-import pygame, numpy, random
+from Game_Parts.snake import Snake
+import pygame, numpy, random, math
+import copy
 
-class SnakeGameAI:
-
+class SnakeGame:
     def __init__(self, gridSize = 10, gridLineWidth = 4, snake_size=3):
         self.gridSize = gridSize
         self.gridLineWidth = gridLineWidth
 
         self.snake_start_size = snake_size
-        self.reset(self.snake_start_size)
+        self.reset()
 
-    def reset(self, snake_size):
+    def reset(self):
         self.score = 0
 
         self.grid = numpy.zeros((self.gridSize, self.gridSize), dtype=int)
-        self.snake = Snake(self.gridSize//2, self.gridSize//2, min(snake_size, self.gridSize-1), 1, 0)
+        self.snake = Snake(self.gridSize//2, self.gridSize//2, min(self.snake_start_size, self.gridSize-1), 1, 0)
         self._placeApple()
 
     def input(self, turn):
@@ -27,7 +27,19 @@ class SnakeGameAI:
             self.grid = self._placeApple()
         self.grid = self._placeSnake()
 
-        return self.score, deadState
+        return deadState
+    
+    def simulate_move(self, turns):
+        snake = copy.deepcopy(self.snake)
+
+        for turn in turns:
+            snake.changeDirection(turn)
+            deadState = snake.move(self.gridSize, self.applePos)
+
+        score = snake.bodySize - self.snake_start_size
+
+        appleDistance = math.sqrt((self.applePos[0] - snake.body[0].x)**2 + (self.applePos[1] - snake.body[0].y)**2)
+        return appleDistance, score, deadState
 
     def draw(self, surface, surfaceSize):
         surface.fill((0, 0, 0))

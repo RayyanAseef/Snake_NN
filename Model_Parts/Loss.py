@@ -1,5 +1,5 @@
 import numpy 
-from Model.Activations import Softmax
+from Model_Parts.Activations import Softmax
 
 class Loss:
     def remember_trainable_layers(self, trainable_layers):

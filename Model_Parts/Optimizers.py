@@ -1,6 +1,5 @@
 import numpy
 
-
 class Adam:
     def __init__(self, learning_rate=0.001, decay=0., epsilon=1e-7, beta1=0.9, beta2=0.999):
         self.current_learning_rate = learning_rate

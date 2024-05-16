@@ -1,6 +1,6 @@
-from Model.Layers import Layer_Input, Layer_Dense
-from Model.Activations import Softmax
-from Model.Loss import CategoricalCrossentropy, Softmax_CategoricalCrossentropy
+from Model_Parts.Layers import Layer_Input, Layer_Dense
+from Model_Parts.Activations import Softmax
+from Model_Parts.Loss import CategoricalCrossentropy, Softmax_CategoricalCrossentropy
 import numpy
 import pickle
 import copy
@@ -97,7 +97,7 @@ class Model:
             f'acc: {validation_accuracy:.3f}, ' +
             f'loss: {validation_loss:.3f}')
 
-    def train(self, X, y, *, epochs=1, print_every_epoch=1, print_per_epoch=1,  batch_size=None, validation_data=None):
+    def train(self, X, y, *, epochs=1, print_every_epoch=None, print_per_epoch=None,  batch_size=None, validation_data=None):
         self.accuracy.init(y)
 
         train_steps = 1
@@ -105,12 +105,13 @@ class Model:
             train_steps = len(X) // batch_size
             if train_steps*batch_size < len(X):
                 train_steps += 1
-        
-        if train_steps > print_per_epoch:
-            print_per_epoch = train_steps // print_per_epoch
-        else:
-            print_per_epoch = 1
-        
+            
+        if print_per_epoch != None:
+            if train_steps > print_per_epoch:
+                print_per_epoch = train_steps // print_per_epoch
+            else:
+                print_per_epoch = 1
+            
         for epoch in range(1, epochs+1):
             self.loss.new_pass()
             self.accuracy.new_pass()
@@ -138,25 +139,27 @@ class Model:
                     self.optimizer.update_params(layer)
                 self.optimizer.post_update_params()
 
-                if not step % print_per_epoch and not epoch % print_every_epoch:
-                    print(f'step: {step}, ' +
-                        f'acc: {accuracy:.3f}, ' +
-                        f'loss: {loss:.3f} (' +
-                        f'data_loss: {data_loss:.3f}, ' +
-                        f'reg_loss: {reg_loss:.3f}), ' +
-                        f'lr: {self.optimizer.current_learning_rate}')
+                if print_every_epoch != None and print_per_epoch != None:
+                    if not step % print_per_epoch and not epoch % print_every_epoch:
+                        print(f'step: {step}, ' +
+                            f'acc: {accuracy:.3f}, ' +
+                            f'loss: {loss:.3f} (' +
+                            f'data_loss: {data_loss:.3f}, ' +
+                            f'reg_loss: {reg_loss:.3f}), ' +
+                            f'lr: {self.optimizer.current_learning_rate}')
                     
             epoch_data_loss, epoch_reg_loss = self.loss.calculate_accumulated(include_regularization=True)
             epoch_loss = epoch_data_loss + epoch_reg_loss
             epoch_accuracy = self.accuracy.calculate_accumulated()
 
-            if not epoch % print_every_epoch:
-                print(f'training(Epoch: {epoch}), ' +
-                        f'acc: {epoch_accuracy:.3f}, ' +
-                        f'loss: {epoch_loss:.3f} (' +
-                        f'data_loss: {epoch_data_loss:.3f}, ' +
-                        f'reg_loss: {epoch_reg_loss:.3f}), ' +
-                        f'lr: {self.optimizer.current_learning_rate}\n')
+            if print_every_epoch != None:
+                if not epoch % print_every_epoch:
+                    print(f'training(Epoch: {epoch}), ' +
+                            f'acc: {epoch_accuracy:.3f}, ' +
+                            f'loss: {epoch_loss:.3f} (' +
+                            f'data_loss: {epoch_data_loss:.3f}, ' +
+                            f'reg_loss: {epoch_reg_loss:.3f}), ' +
+                            f'lr: {self.optimizer.current_learning_rate}\n')
 
         if validation_data is not None:
             self.evaluate(*validation_data, batch_size=batch_size)
@@ -176,7 +179,7 @@ class Model:
             else:
                 batch = X[step*batch_size:(step+1)*batch_size]
             
-            output.append(self.forward(batch, training=False))
+            output.append(self.layers[-1].predictions(self.forward(batch)))
         
         return numpy.vstack(output)
 

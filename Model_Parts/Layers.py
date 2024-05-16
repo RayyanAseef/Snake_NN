@@ -1,5 +1,4 @@
 import numpy
-import os
 
 class Layer_Input:
     def forward(self, inputs):

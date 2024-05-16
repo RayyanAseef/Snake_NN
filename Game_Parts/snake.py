@@ -1,4 +1,4 @@
-from snakeBody import Snake_Body
+from Game_Parts.snakeBody import Snake_Body
 import numpy as np
 
 class Snake:
