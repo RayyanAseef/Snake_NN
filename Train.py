@@ -11,9 +11,9 @@ agent = Agent()
 agent.model = Model.load('Model.model')
 # agent.create_model(
 #     layers=[
-#         Layer_Dense(11, 14, weight_regularizer_l2=5e-4, bias_regularizer_l2=5e-4),
+#         Layer_Dense(11, 32, weight_regularizer_l2=5e-4, bias_regularizer_l2=5e-4),
 #         ReLU(),
-#         Layer_Dense(14, 3),
+#         Layer_Dense(32, 3),
 #         Softmax()
 #     ],
 #     loss=CategoricalCrossentropy(),
@@ -21,5 +21,5 @@ agent.model = Model.load('Model.model')
 #     optimizer=Adam(learning_rate=0.005, decay=5e-7)
 # )
 
-agent.train(10000)
-agent.model.save_model('Model.model')
+agent.train(10_000)
+agent.model.save_model('Model1.model')

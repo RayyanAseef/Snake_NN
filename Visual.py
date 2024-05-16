@@ -2,18 +2,18 @@ from Game import SnakeGame
 from Model import Model
 import pygame, numpy
 
-screenSize = 500
+screenSize = 750
 screen = pygame.display.set_mode([screenSize, screenSize])
 
 clock = pygame.time.Clock()
-game = SnakeGame(10, 4)
+game = SnakeGame(30, 4)
 
-model = Model.load('Model.model')
+model = Model.load('Model1.model')
 
 deadState = 0
 running = True
 while running:
-    clock.tick(8)
+    clock.tick(100)
 
     turn = [1, 0, 0]
     for event in pygame.event.get():

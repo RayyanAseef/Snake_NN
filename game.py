@@ -17,6 +17,31 @@ class SnakeGame:
         self.snake = Snake(self.gridSize//2, self.gridSize//2, min(self.snake_start_size, self.gridSize-1), 1, 0)
         self._placeApple()
 
+    def get_state(self):
+        left_rotation = {(1, 0): (0, 1), (0, 1): (-1, 0), (-1, 0): (0, -1), (0, -1): (1, 0)}
+        right_rotation = {(1, 0): (0, -1), (0, -1): (-1, 0), (-1, 0): (0, 1), (0, 1): (1, 0)}
+        directions = [[self.snake.xDir, self.snake.yDir], [*right_rotation[(self.snake.xDir, self.snake.yDir)]], [*left_rotation[(self.snake.xDir, self.snake.yDir)]]]
+
+        dangers = [self.snake.isDead(self.gridSize, body=self.snake.body, pt=[self.snake.body[0].x + direction[0], self.snake.body[0].y - direction[1]]) for direction in directions]
+
+        directions = { (1, 0): (0, 1, 0, 0), (-1, 0): (1, 0, 0, 0), (0,  1): (0, 0, 1, 0), (0, -1): (0, 0, 0, 1)  }
+        currentDirection = self.snake.xDir, self.snake.yDir
+
+        dirLeft, dirRight, dirUp, dirDown = directions[currentDirection]
+
+        head = self.snake.body[0]
+        apple = self.applePos
+
+        foodRight = 1 if head.x < apple[0] else 0
+        foodLeft = 0 if head.x < apple[0] else 1
+
+        foodUp = 1 if head.y > apple[1] else 0
+        foodDown = 0 if head.y > apple[1] else 1
+        
+        return [ dangers[0], dangers[1], dangers[2],
+                    dirLeft, dirRight, dirUp, dirDown,
+                    foodLeft, foodRight, foodUp, foodDown ]
+
     def input(self, turn):
         self.snake.changeDirection(turn)
         deadState = self.snake.move(self.gridSize, self.applePos)

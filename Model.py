@@ -165,7 +165,6 @@ class Model:
             self.evaluate(*validation_data, batch_size=batch_size)
 
     def predict(self, X, *, batch_size=None):
-
         prediction_steps = 1
         if batch_size is not None:
             prediction_steps = len(X) // prediction_steps
@@ -179,7 +178,7 @@ class Model:
             else:
                 batch = X[step*batch_size:(step+1)*batch_size]
             
-            output.append(self.layers[-1].predictions(self.forward(batch)))
+            output.append(self.forward(batch))
         
         return numpy.vstack(output)
 
