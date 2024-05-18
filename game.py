@@ -44,7 +44,7 @@ class SnakeGame:
 
     def input(self, turn):
         self.snake.changeDirection(turn)
-        deadState = self.snake.move(self.gridSize, self.applePos)
+        deadState, ateApple = self.snake.move(self.gridSize, self.applePos)
 
         self.score = self.snake.bodySize - self.snake_start_size
 
@@ -52,14 +52,16 @@ class SnakeGame:
             self.grid = self._placeApple()
         self.grid = self._placeSnake()
 
-        return deadState
+        reward = 10 if ateApple else -10 if deadState else 0
+
+        return deadState, reward
     
     def simulate_move(self, turns):
         snake = copy.deepcopy(self.snake)
 
         for turn in turns:
             snake.changeDirection(turn)
-            deadState = snake.move(self.gridSize, self.applePos)
+            deadState, _ = snake.move(self.gridSize, self.applePos)
 
         score = snake.bodySize - self.snake_start_size
 

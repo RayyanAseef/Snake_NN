@@ -29,3 +29,15 @@ class Accuracy_Categorical(Accuracy):
         if not self.binary and len(y.shape) == 2:
             y = numpy.argmax(y, axis=1)
         return predictions == y
+    
+class Accuracy_Regression(Accuracy):
+    def __init__(self):
+        self.precision = None
+
+    def init(self, y, reinit=False):
+        if self.precision is None or reinit:
+            self.precision = numpy.std(y)/250
+
+    # Compares predictions to the ground truth values
+    def compare(self, predictions, y):
+        return numpy.absolute(predictions - y) < self.precision

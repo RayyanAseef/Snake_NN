@@ -41,7 +41,7 @@ class Snake:
         if ateApple: 
             self._grow()
         
-        return deadState
+        return deadState, ateApple
 
     def _grow(self):
         new_part = Snake_Body( self.lastPostion[0],  self.lastPostion[1], None)

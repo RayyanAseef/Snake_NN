@@ -53,6 +53,14 @@ class Model:
 
         return layer.output
     
+    def calulate_loss(self, output, y_true, new_pass=False):
+        if new_pass:
+            self.loss.new_pass()
+        data_loss, reg_loss = self.loss.calculate(output, y_true, include_regularization=True)
+        loss = data_loss + reg_loss
+
+        return loss, data_loss, reg_loss
+    
     def backward(self, output, y):
         if self.softmax_classifier_output is not None:
             self.softmax_classifier_output.backward(output, y)
@@ -65,6 +73,12 @@ class Model:
         self.loss.backward(output, y)
         for layer in reversed(self.layers):
             layer.backward(layer.next.dinputs)
+        
+    def optimize(self):
+        self.optimizer.pre_update_params()
+        for layer in self.trainable_layers:
+            self.optimizer.update_params(layer)
+        self.optimizer.post_update_params()
     
     def evaluate(self, X_val, y_val, *, batch_size=None):
         validation_steps = 1
@@ -125,19 +139,13 @@ class Model:
                     batch_y = y[step*batch_size:(step+1)*batch_size]
 
                 output = self.forward(batch_X)
-
-                data_loss, reg_loss = self.loss.calculate(output, batch_y, include_regularization=True)
-                loss = data_loss + reg_loss
+                loss, data_loss, reg_loss = self.calulate_loss(output, batch_y)
 
                 predictions = self.output_layer_activation.predictions(output)
                 accuracy = self.accuracy.calculate(predictions, batch_y)
 
                 self.backward(output, batch_y)
-
-                self.optimizer.pre_update_params()
-                for layer in self.trainable_layers:
-                    self.optimizer.update_params(layer)
-                self.optimizer.post_update_params()
+                self.optimize()
 
                 if print_every_epoch != None and print_per_epoch != None:
                     if not step % print_per_epoch and not epoch % print_every_epoch:

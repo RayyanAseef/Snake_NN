@@ -25,3 +25,15 @@ class Softmax:
         
     def predictions(self, outputs):
         return numpy.argmax(outputs, axis=1)
+    
+class Linear:
+
+    def forward(self, inputs, training=True):
+        self.inputs = inputs
+        self.output = inputs
+
+    def backward(self, dvalues):
+        self.dinputs = dvalues.copy()
+
+    def predictions(self, outputs):
+        return outputs
